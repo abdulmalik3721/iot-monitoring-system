@@ -4,12 +4,15 @@ import pandas as pd
 import plotly.express as px
 
 from pathlib import Path
+from streamlit_autorefresh import st_autorefresh
+
 from sensor_simulator import (
     generate_sensor_data,
     save_sensor_data
 )
 
 
+# Dashboard configuration
 st.set_page_config(
     page_title="IoT Monitoring System",
     page_icon="🌐",
@@ -19,131 +22,127 @@ st.set_page_config(
 st.title("🌐 IoT Environmental Monitoring System")
 
 st.write(
-    "Environmental monitoring using simulated "
-    "IoT sensor readings."
+    "Automated environmental monitoring using "
+    "simulated IoT sensor readings."
 )
 
 DATA_FILE = Path("data/sensor_data.csv")
 
+# Automatically refresh every 10 seconds
+refresh_count = st_autorefresh(
+    interval=10000,
+    key="sensor_refresh"
+)
 
-# Collect a new sensor reading
-if st.button("Collect New Sensor Reading"):
+# Generate and save a new reading on each refresh
+new_reading = generate_sensor_data()
+save_sensor_data(new_reading)
 
-    new_reading = generate_sensor_data()
+# Read historical sensor data
+df = pd.read_csv(DATA_FILE)
 
-    save_sensor_data(new_reading)
+# Convert timestamp into datetime
+df["timestamp"] = pd.to_datetime(df["timestamp"])
 
-    st.success("New sensor reading collected and saved!")
+# Latest readings
+latest = df.iloc[-1]
 
+st.caption("Dashboard automatically updates every 10 seconds.")
 
-# Load saved readings
-if DATA_FILE.exists() and DATA_FILE.stat().st_size > 0:
+# Display metrics
+col1, col2, col3 = st.columns(3)
 
-    df = pd.read_csv(DATA_FILE)
+col1.metric(
+    "Temperature",
+    f"{latest['temperature']} °C"
+)
 
+col2.metric(
+    "Humidity",
+    f"{latest['humidity']} %"
+)
+
+col3.metric(
+    "Air Quality",
+    f"{latest['air_quality']}"
+)
+
+st.divider()
+
+# Temperature graph
+st.subheader("Temperature Monitoring")
+
+temperature_chart = px.line(
+    df,
+    x="timestamp",
+    y="temperature",
+    title="Temperature History",
+    markers=True
+)
+
+st.plotly_chart(
+    temperature_chart,
+    use_container_width=True
+)
+
+# Humidity graph
+st.subheader("Humidity Monitoring")
+
+humidity_chart = px.line(
+    df,
+    x="timestamp",
+    y="humidity",
+    title="Humidity History",
+    markers=True
+)
+
+st.plotly_chart(
+    humidity_chart,
+    use_container_width=True
+)
+
+# Air quality graph
+st.subheader("Air Quality Monitoring")
+
+air_chart = px.line(
+    df,
+    x="timestamp",
+    y="air_quality",
+    title="Air Quality History",
+    markers=True
+)
+
+st.plotly_chart(
+    air_chart,
+    use_container_width=True
+)
+
+st.divider()
+
+# Monitoring alerts
+st.subheader("Monitoring Alerts")
+
+if latest["temperature"] > 30:
+    st.warning("High temperature detected!")
 else:
+    st.success("Temperature is within the configured threshold.")
 
-    df = pd.DataFrame(columns=[
-        "timestamp",
-        "temperature",
-        "humidity",
-        "air_quality"
-    ])
-
-
-if df.empty:
-
-    st.info("No sensor readings available. Collect a reading to begin.")
-
+if latest["humidity"] > 70:
+    st.warning("High humidity detected!")
 else:
+    st.success("Humidity is within the configured threshold.")
 
-    latest = df.iloc[-1]
+# Historical data
+st.subheader("Historical Sensor Readings")
 
-    # Current sensor measurements
-    col1, col2, col3 = st.columns(3)
+st.dataframe(
+    df.sort_values("timestamp", ascending=False),
+    use_container_width=True
+)
 
-    col1.metric(
-        "Temperature",
-        f"{latest['temperature']} °C"
-    )
+st.write(f"Total sensor readings: {len(df)}")
 
-    col2.metric(
-        "Humidity",
-        f"{latest['humidity']} %"
-    )
-
-    col3.metric(
-        "Air Quality",
-        f"{latest['air_quality']}"
-    )
-
-    # Temperature chart
-    st.subheader("Temperature Monitoring")
-
-    temperature_chart = px.line(
-        df,
-        x="timestamp",
-        y="temperature",
-        title="Temperature History"
-    )
-
-    st.plotly_chart(
-        temperature_chart,
-        use_container_width=True
-    )
-
-    # Humidity chart
-    st.subheader("Humidity Monitoring")
-
-    humidity_chart = px.line(
-        df,
-        x="timestamp",
-        y="humidity",
-        title="Humidity History"
-    )
-
-    st.plotly_chart(
-        humidity_chart,
-        use_container_width=True
-    )
-
-    # Air quality chart
-    st.subheader("Air Quality Monitoring")
-
-    air_chart = px.line(
-        df,
-        x="timestamp",
-        y="air_quality",
-        title="Air Quality History"
-    )
-
-    st.plotly_chart(
-        air_chart,
-        use_container_width=True
-    )
-
-    # Monitoring alerts
-    st.subheader("Monitoring Alerts")
-
-    if latest["temperature"] > 30:
-        st.warning("High temperature detected!")
-    else:
-        st.success("Temperature is within the configured threshold.")
-
-    if latest["humidity"] > 70:
-        st.warning("High humidity detected!")
-    else:
-        st.success("Humidity is within the configured threshold.")
-
-    # Historical records
-    st.subheader("Historical Sensor Readings")
-
-    st.dataframe(
-        df,
-        use_container_width=True
-    )
-
-    st.write(f"Total sensor readings: {len(df)}")
-
-
-st.caption("Sensor readings are simulated for demonstration purposes.")
+st.caption(
+    "All sensor readings are simulated. "
+    "No physical IoT hardware is connected."
+)
