@@ -1,3 +1,5 @@
+<img width="1536" height="1024" alt="IOT_README_1_" src="https://github.com/user-attachments/assets/494a5d91-777f-4887-8517-2ebb14328a9d" />
+<img width="1536" height="1024" alt="IOT_README_2_" src="https://github.com/user-attachments/assets/a2a82ac5-e88a-4630-b3ac-5e2608bdc89b" />
 
 # IoT Environmental Monitoring System
 
