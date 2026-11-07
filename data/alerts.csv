@@ -1,2 +1,7 @@
 timestamp,sensor,value,severity,message
 2026-11-07 23:11:13,Temperature,33.84,Critical,Temperature has reached a critical level: 33.84
+2026-11-07 23:16:38,Temperature,30.7,Warning,Temperature has crossed the warning limit: 30.7
+2026-11-07 23:16:38,Humidity,77.2,Warning,Humidity has crossed the warning limit: 77.2
+2026-11-07 23:16:49,Temperature,30.46,Warning,Temperature has crossed the warning limit: 30.46
+2026-11-07 23:16:49,Humidity,79.25,Warning,Humidity has crossed the warning limit: 79.25
+2026-11-07 23:16:59,Temperature,31.33,Warning,Temperature has crossed the warning limit: 31.33
