@@ -1,0 +1,2 @@
+timestamp,sensor,value,severity,message
+2026-11-07 23:11:13,Temperature,33.84,Critical,Temperature has reached a critical level: 33.84
